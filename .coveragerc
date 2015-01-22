@@ -1,0 +1,7 @@
+[run]
+branch = True
+source = cloudfoundryclient
+omit = cloudfoundryclient/tests/*,cloudfoundryclient/openstack/*
+
+[report]
+ignore-errors = True
