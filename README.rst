@@ -9,7 +9,7 @@ Python bindings for cloudfoundry
 * Source: http://git.openstack.org/cgit/openstack/python-cloudfoundryclient
 * Bugs: http://bugs.launchpad.net/replace with the name of the project on launchpad
 
-Features
+TODO
 --------
 
-* TODO
+* Implement pagination
