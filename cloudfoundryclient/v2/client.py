@@ -41,6 +41,7 @@ class Client(object):
     organization_space_quota_definitions_url = (
         '/v2/organizations/%s/space_quota_definitions')
     apps_space_url = '/v2/spaces/%s/apps'
+    spaces_summary_url = '/v2/spaces/%s/summary'
 
     def __init__(self, username="", password="",
                  base_url="https://api.run.pivotal.io/"):
@@ -155,5 +156,15 @@ class Client(object):
         headers = self._generic_request_headers()
         url = self._base_url + (
             self.apps_space_url % guid)
+        r = requests.get(url, headers=headers)
+        return r.json()
+
+    def get_spaces_summary(self, guid):
+        """Return list summary of each space
+
+        param - guid: the guid of the space.
+        """
+        headers = self._generic_request_headers()
+        url = self._base_url + (self.spaces_summary_url % guid)
         r = requests.get(url, headers=headers)
         return r.json()
