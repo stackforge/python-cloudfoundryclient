@@ -42,6 +42,7 @@ class Client(object):
         '/v2/organizations/%s/space_quota_definitions')
     apps_space_url = '/v2/spaces/%s/apps'
     spaces_summary_url = '/v2/spaces/%s/summary'
+    app_service_bindings = '/v2/apps/%s/service_bindings'
 
     def __init__(self, username="", password="",
                  base_url="https://api.run.pivotal.io/"):
@@ -166,5 +167,15 @@ class Client(object):
         """
         headers = self._generic_request_headers()
         url = self._base_url + (self.spaces_summary_url % guid)
+        r = requests.get(url, headers=headers)
+        return r.json()
+
+    def get_app_service_bindings(self, guid):
+        """Return list service bindings to each app
+
+        param - guid: the guid of the app.
+        """
+        headers = self._generic_request_headers()
+        url = self._base_url + (self.app_service_bindings % guid)
         r = requests.get(url, headers=headers)
         return r.json()
