@@ -93,6 +93,32 @@ class Client(object):
                                      self._auth_data['access_token']))
         return headers
 
+    def _check_expired_token(self, response):
+        if ('error_code' in response and
+                response['error_code'] == 'CF-InvalidAuthToken'):
+            self.login()
+            return True
+        return False
+
+    def _issue_request(self, method, url, headers=None, attemps=0):
+        if not headers:
+            headers = self._generic_request_headers()
+        if method == 'GET':
+            r = requests.get(url, headers=headers)
+        else:
+            raise Exception("We only support GET calls right now..")
+
+        response = r.json()
+        if self._check_expired_token(response):
+            # need to update headers with new auth_values
+            headers["Authorization"] = ("%s %s" %
+                                        (self._auth_data['token_type'],
+                                         self._auth_data['access_token']))
+            return self._issue_request(method, url, headers)
+
+        else:
+            return response
+
     def get_organizations(self):
         """Return oranizations that a user is part of.
 
@@ -100,16 +126,12 @@ class Client(object):
         All members of an org share a resource quota plan, services
         availability, and custom domains.
         """
-        headers = self._generic_request_headers()
         url = self._base_url + self.organizations_url
-        r = requests.get(url, headers=headers)
-        return r.json()
+        return self._issue_request('GET', url)
 
     def get_organization_summary(self, guid):
-        headers = self._generic_request_headers()
         url = self._base_url + (self.organization_summary_url % guid)
-        r = requests.get(url, headers=headers)
-        return r.json()
+        return self._issue_request('GET', url)
 
     def get_organization_spaces(self, guid):
         """Return list of all spaces for an organization
@@ -122,60 +144,47 @@ class Client(object):
         deployment, and maintenance. Each space role applies only to
         a particular space.
         """
-
-        headers = self._generic_request_headers()
         url = self._base_url + (self.organization_space_url % guid)
-        r = requests.get(url, headers=headers)
-        return r.json()
+        return self._issue_request('GET', url)
 
     def get_organization_services(self, guid):
         """Return list of all services for an organization
 
         param - guid: the guid of the organization.
         """
-        headers = self._generic_request_headers()
         url = self._base_url + (self.organization_services_url % guid)
-        r = requests.get(url, headers=headers)
-        return r.json()
+        return self._issue_request('GET', url)
 
     def get_organization_space_quota_definitions(self, guid):
         """Return list of all space quota definiations
 
         param - guid: the guid of the organization.
         """
-        headers = self._generic_request_headers()
         url = self._base_url + (
             self.organization_space_quota_definitions_url % guid)
-        r = requests.get(url, headers=headers)
-        return r.json()
+        return self._issue_request('GET', url)
 
     def get_apps_in_space(self, guid):
         """Return list of all space quota definiations
 
         param - guid: the guid of the organization.
         """
-        headers = self._generic_request_headers()
         url = self._base_url + (
             self.apps_space_url % guid)
-        r = requests.get(url, headers=headers)
-        return r.json()
+        return self._issue_request('GET', url)
 
     def get_spaces_summary(self, guid):
         """Return list summary of each space
 
         param - guid: the guid of the space.
         """
-        headers = self._generic_request_headers()
         url = self._base_url + (self.spaces_summary_url % guid)
-        r = requests.get(url, headers=headers)
-        return r.json()
+        return self._issue_request('GET', url)
 
     def get_app_service_bindings(self, guid):
         """Return list service bindings to each app
 
         param - guid: the guid of the app.
         """
-        headers = self._generic_request_headers()
         url = self._base_url + (self.app_service_bindings % guid)
-        r = requests.get(url, headers=headers)
-        return r.json()
+        return self._issue_request('GET', url)
